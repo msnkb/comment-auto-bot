@@ -1,0 +1,24 @@
+name: Comment Bot
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check issue labels
+        id: check_labels
+        run: |
+          labels=$(echo '${{ github.event.issue.labels }}' | jq -r '.[].name')
+          printf '%s\n' "${labels}"
+
+      - name: Make Comment
+        run: |
+          if echo "${{ steps.check_labels.outputs.labels }}" | grep -q 'bug'; then
+            echo "Thank you. We will fix it" | gh issue comment ${{ github.event.issue.number }} -b -F -
+          elif echo "${{ steps.check_labels.outputs.labels }}" | grep -q 'feature'; then
+            echo "Thank you, we will consider to include this feature." | gh issue comment ${{ github.event.issue.number }} -b -F -
+          else
+            echo "Thank you for your contribution!" | gh issue comment ${{ github.event.issue.number }} -b -F -
