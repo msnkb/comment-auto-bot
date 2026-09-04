@@ -1,0 +1,29 @@
+name: Issue Commenter
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+    - name: Add comment based on label
+      run: |
+        if [[ "${{ github.event.label.name }}" == "bug" ]]; then
+          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
+          -d '{ "body": "Thank you. We will fix it" }'
+        elif [[ "${{ github.event.label.name }}" == "feature" ]]; then
+          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
+          -d '{ "body": "Thank you, we will consider to include this feature." }'
+        else
+          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
+          -d '{ "body": "Thank you for your contribution!" }'
