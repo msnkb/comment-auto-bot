@@ -1,0 +1,29 @@
+name: Comment on Issues
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comment based on issue labels
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const labels = context.payload.issue.labels.map(label => label.name);
+            let commentBody;
+            if (labels.includes('bug')) {
+              commentBody = 'Thank you. We will fix it';
+            } else if (labels.includes('feature')) {
+              commentBody = 'Thank you, we will consider to include this feature.';
+            } else {
+              commentBody = 'Thank you for your contribution!';
+            }
+            await github.issues.createComment({
+              issue_number: context.payload.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: commentBody
+            });
